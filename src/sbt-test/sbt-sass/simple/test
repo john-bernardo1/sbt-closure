@@ -1,0 +1,6 @@
+# Minify a css file
+
+> assets
+$ exists target/web/public/main/css/main.css
+
+# Minify a js file
