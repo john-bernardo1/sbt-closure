@@ -45,6 +45,7 @@ object SbtClosure extends AutoPlugin {
 
   private def closureCompile: Def.Initialize[Task[Pipeline.Stage]] = Def.task {
     mappings: Seq[PathMapping] =>
+      // TODO - Call closure compiler using CommandLineRunner(args).run()
       mappings.filter(m => (includeFilter in closure).value.accept(m._1))
   }
 }
