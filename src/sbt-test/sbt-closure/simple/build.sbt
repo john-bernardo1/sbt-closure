@@ -44,3 +44,18 @@ wrapPipelineTask := { mappings =>
 }
 
 pipelineStages := Seq(wrapPipelineTask, closure)
+
+val verifyMinified = taskKey[Unit]("Verify that the minified files are in fact minified")
+
+verifyMinified := {
+  var notMinified = false
+  var notMinifiedName = ""
+  (((public in Assets).value / "") ** "*.min.js").get.takeWhile(f => !notMinified).foreach { minFile: File =>
+    val minifiedContents = IO.read(minFile)
+    val unminifiedContents = IO.read(file(minFile.getAbsolutePath.replace(".min", "")))
+    notMinifiedName = minFile.getAbsolutePath
+    notMinified = minifiedContents.size >= notMinifiedName.size
+  }
+  if (notMinified)
+    sys.error(s"File was not minified properly: $notMinifiedName")
+}

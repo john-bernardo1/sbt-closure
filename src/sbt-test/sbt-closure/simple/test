@@ -9,7 +9,12 @@ $ exists target/web/public/main/js/assets-main.js
 $ exists target/web/public/main/js/assets-main.min.js
 $ exists target/web/public/main/coffee/main.js
 $ exists target/web/public/main/coffee/main.min.js
-$ exists target/web/coffeescript/main/coffee/main.js
-$ exists target/web/coffeescript/main/coffee/main.min.js
+
+# Verify contents
+> verifyMinified
 
 # No coffee files, only JS
+
+# Uses command line flags
+
+# Only use whitelisted command line flags
