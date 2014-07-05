@@ -59,3 +59,10 @@ verifyMinified := {
   if (notMinified)
     sys.error(s"File was not minified properly: $notMinifiedName")
 }
+
+val verifyNoCoffee = taskKey[Unit]("Verify that there are no CoffeeScript source files")
+
+verifyNoCoffee := {
+  if (((public in Assets).value / "" ** "*.coffee").get.nonEmpty)
+    sys.error("Found some CoffeeScript source files in the public compiled directory")
+}

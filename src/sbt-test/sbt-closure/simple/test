@@ -14,7 +14,7 @@ $ exists target/web/public/main/coffee/main.min.js
 > verifyMinified
 
 # No coffee files, only JS
+> verifyNoCoffee
 
 # Uses command line flags
-
-# Only use whitelisted command line flags
+> clean

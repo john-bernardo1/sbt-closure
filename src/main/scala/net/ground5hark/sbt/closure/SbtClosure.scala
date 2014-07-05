@@ -63,8 +63,14 @@ object SbtClosure extends AutoPlugin {
   private def closureCompile: Def.Initialize[Task[Pipeline.Stage]] = Def.task {
     mappings: Seq[PathMapping] =>
       val targetDir = (public in Assets).value
-      mappings.filter(m => (includeFilter in closure).value.accept(m._1)).map {
+      val compileMappings = mappings.filter(m => (includeFilter in closure).value.accept(m._1))
+      /* TODO Implement caching
+      val runCompiler = FileFunction.cached(streams.value.cacheDirectory, FilesInfo.hash) {
+      } */
+
+      compileMappings.map {
         case (f, name) =>
+          // TODO Look into using syncMappings
           val outputFileName = s"${util.withoutExt(name)}${suffix.value}"
           val outputFile = targetDir / outputFileName
           invokeCompiler(f, outputFile)
