@@ -1,0 +1,15 @@
+# Minify a css file
+
+> assets
+$ exists target/web/public/main/js/wrap.js
+$ exists target/web/public/main/js/wrap.min.js
+$ exists target/web/public/main/js/wrap.wrapped.js
+$ exists target/web/public/main/js/wrap.wrapped.min.js
+$ exists target/web/public/main/js/assets-main.js
+$ exists target/web/public/main/js/assets-main.min.js
+$ exists target/web/public/main/coffee/main.js
+$ exists target/web/public/main/coffee/main.min.js
+$ exists target/web/coffeescript/main/coffee/main.js
+$ exists target/web/coffeescript/main/coffee/main.min.js
+
+# No coffee files, only JS
