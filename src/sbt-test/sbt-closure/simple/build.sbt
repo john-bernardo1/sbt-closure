@@ -43,6 +43,8 @@ wrapPipelineTask := { mappings =>
   }
 }
 
+Closure.flags += "--define='someFlag=true'"
+
 pipelineStages := Seq(wrapPipelineTask, closure)
 
 val verifyMinified = taskKey[Unit]("Verify that the minified files are in fact minified")
@@ -63,6 +65,18 @@ verifyMinified := {
 val verifyNoCoffee = taskKey[Unit]("Verify that there are no CoffeeScript source files")
 
 verifyNoCoffee := {
-  if (((public in Assets).value / "" ** "*.coffee").get.nonEmpty)
-    sys.error("Found some CoffeeScript source files in the public compiled directory")
+  val coffeeFiles = ((public in Assets).value / "" ** "*.coffee").get
+  if (coffeeFiles.nonEmpty) {
+    val files = coffeeFiles.map { f: File => f.getPath }.mkString(",")
+    sys.error(s"Found some CoffeeScript source files in the public compiled directory: $files")
+  }
+}
+
+val verifyFlags = taskKey[Unit]("Verify that all flags were provided to the compiler")
+
+verifyFlags := {
+  val compiledFile = ((public in Assets).value / "" ** "*assets-main.min.js").get.head
+  val contents = IO.read(compiledFile)
+  if (!contents.contains("someFlag=!0"))
+    sys.error(s"Expected 'someFlag=!0' but was: '$contents'")
 }

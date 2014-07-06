@@ -6,6 +6,8 @@ import com.typesafe.sbt.web.pipeline.Pipeline
 import sbt._
 import sbt.Keys._
 
+import scala.collection.mutable.ListBuffer
+
 object Import {
   val closure = TaskKey[Pipeline.Stage]("closure", "Runs JavaScript web assets through the Google closure compiler")
 
@@ -42,7 +44,7 @@ object SbtClosure extends AutoPlugin {
   import Closure._
 
   override def projectSettings = Seq(
-    flags := Seq.empty[String],
+    flags := ListBuffer.empty[String],
     suffix := ".min.js",
     includeFilter in closure := new UncompiledJsFileFilter(suffix.value),
     closure := closureCompile.value
@@ -50,10 +52,13 @@ object SbtClosure extends AutoPlugin {
 
   object util {
     def withoutExt(name: String): String = name.substring(0, name.lastIndexOf("."))
+    def withParent(f: File): String = f.getParentFile.getName + "/" + f.getName
   }
 
-  private def invokeCompiler(src: File, target: File): Unit = {
-    val compiler = new SbtClosureCommandLineRunner(Seq(s"--js=${src.getAbsolutePath}", s"--js_output_file=${target.getAbsolutePath}").toArray)
+  private def invokeCompiler(src: File, target: File, flags: Seq[String]): Unit = {
+    val opts = Seq(s"--js=${src.getAbsolutePath}", s"--js_output_file=${target.getAbsolutePath}") ++
+      flags.filterNot(s => s.trim.startsWith("--js=") || s.trim.startsWith("--js_output_file="))
+    val compiler = new SbtClosureCommandLineRunner(opts.toArray)
     if (compiler.shouldRunCompiler())
       compiler.compile()
     else
@@ -63,19 +68,21 @@ object SbtClosure extends AutoPlugin {
   private def closureCompile: Def.Initialize[Task[Pipeline.Stage]] = Def.task {
     mappings: Seq[PathMapping] =>
       val targetDir = (public in Assets).value
-      val compileMappings = mappings.filter(m => (includeFilter in closure).value.accept(m._1))
-      /* TODO Implement caching
-      val runCompiler = FileFunction.cached(streams.value.cacheDirectory, FilesInfo.hash) {
-      } */
+      val compileMappings = mappings.view.filter(m => (includeFilter in closure).value.accept(m._1)).toMap
 
-      compileMappings.map {
-        case (f, name) =>
-          // TODO Look into using syncMappings
-          val outputFileName = s"${util.withoutExt(name)}${suffix.value}"
-          val outputFile = targetDir / outputFileName
-          invokeCompiler(f, outputFile)
-          (outputFile, outputFileName)
-        case u => sys.error(s"Unknown mapping: $u")
+      // Only do work on files which have been modified
+      val runCompiler = FileFunction.cached(streams.value.cacheDirectory / "closure-compiler", FilesInfo.hash) { files =>
+        streams.value.log.info(s"Handling ${files.size} output files...")
+        files.map { f =>
+          val outputFileSubPath = s"${util.withoutExt(compileMappings(f))}${suffix.value}"
+          val outputFile = targetDir / outputFileSubPath
+          invokeCompiler(f, outputFile, flags.value)
+          outputFile
+        }
       }
+
+      runCompiler(compileMappings.keySet).map { outputFile =>
+        (outputFile, util.withParent(outputFile))
+      }.toSeq
   }
 }
