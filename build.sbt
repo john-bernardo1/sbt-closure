@@ -8,13 +8,9 @@ version := "1.0.0-SNAPSHOT"
 
 scalaVersion := "2.10.4"
 
-libraryDependencies <++= (sbtVersion) {
-  sv => Seq(
-    "com.google.javascript" % "closure-compiler" % "v20140625",
-    // TODO Potentially binary incompatible
-    Defaults.sbtPluginExtra("com.typesafe.sbt" %% "sbt-web" % "1.0.2", "0.13", "2.10")
-  )
-}
+libraryDependencies += "com.google.javascript" % "closure-compiler" % "v20140625"
+
+addSbtPlugin("com.typesafe.sbt" %% "sbt-web" % "1.0.2")
 
 resolvers ++= Seq(
   "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases/",
