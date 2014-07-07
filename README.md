@@ -1,6 +1,6 @@
 sbt-closure
 ===========
-[![Build Status](https://api.travis-ci.org/ground5hark/sbt-closure.png?branch=master)](https://travis-ci.org/ground5hark/sbt-concat)
+[![Build Status](https://api.travis-ci.org/ground5hark/sbt-closure.png?branch=master)](https://travis-ci.org/ground5hark/sbt-closure)
 
 [sbt-web] plugin which integrates with [Google’s Closure Compiler].
 
