@@ -8,7 +8,7 @@ Plugin
 ======
 Add the plugin to your `project/plugins.sbt`:
 ```scala
-addSbtPlugin("net.ground5hark.sbt" % "sbt-closure" % "0.1.0")
+addSbtPlugin("net.ground5hark.sbt" % "sbt-closure" % "0.1.1")
 ```
 
 Add the [Sonatype releases] resolver:
@@ -32,6 +32,7 @@ Option              | Description
 --------------------|------------
 suffix              | Suffix to append to each file compiled by closure. Defaults to `".min.js"`
 flags               | List of command line flags to provide to the closure compiler. Must be in the format of `--option-name=value` or `--option-flag`
+parentDir           | Parent directory name where closure compiled JS will go. Defaults to `"closure-compiler"`
 
 An example of providing options is below:
 
@@ -41,8 +42,9 @@ Closure.suffix := ".min.js"
 Closure.flags := Seq("--formatting=PRETTY_PRINT", "--accept_const_keyword")
 ```
 
-This will produce sibling assets with the specified `Closure.suffix` suffix value. For a full list of
-closure compiler options, see the [official documentation page].
+This will produce assets with the specified `Closure.suffix` suffix value under the `Closure.parentDir` directory within
+the `target` folder. This will be `target/web/public/main` or `target/web/stage`. For a full list of closure compiler
+options, see the [official documentation page].
 
 License
 =======
