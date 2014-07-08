@@ -6,13 +6,13 @@ organization := "net.ground5hark.sbt"
 
 name := "sbt-closure-test"
 
-version := "1.0.0"
+version := "0.1.1"
 
 scalaVersion := "2.10.4"
 
 lazy val root = (project in file(".")).enablePlugins(SbtWeb)
 
-// Pipeline which compiles assets, this one wraps code in a closure
+// Asset pipeline task which wraps JS code in a closure
 val wrapPipelineTask = taskKey[Pipeline.Stage]("Wraps JS code in an anonymous function block")
 
 includeFilter in wrapPipelineTask := new SimpleFileFilter(_.getName.endsWith(".js"))
@@ -24,7 +24,7 @@ wrapPipelineTask := { mappings =>
     IO.copyFile(f, outputFile)
     (outputFile, name)
   }
-  mappings.filter(m => (includeFilter in wrapPipelineTask).value.accept(m._1)).flatMap {
+  mappings.view.filter(m => (includeFilter in wrapPipelineTask).value.accept(m._1)).flatMap {
     case (f, name) =>
       Seq(passThrough(f, name, targetDir)) ++
         (if (name.endsWith("wrap.js")) {
@@ -47,9 +47,9 @@ val verifyMinified = taskKey[Unit]("Verify that the minified files are in fact m
 verifyMinified := {
   var notMinified = false
   var notMinifiedName = ""
-  (((public in Assets).value / "") ** "*.min.js").get.takeWhile(f => !notMinified).foreach { minFile: File =>
+  (((public in Assets).value / Closure.parentDir.value) ** "*.min.js").get.takeWhile(f => !notMinified).foreach { minFile: File =>
     val minifiedContents = IO.read(minFile)
-    val unminifiedContents = IO.read(file(minFile.getAbsolutePath.replace(".min", "")))
+    val unminifiedContents = IO.read(minFile.getParentFile / ".." / ".." / "js" / minFile.getName.replace(".min", ""))
     notMinifiedName = minFile.getAbsolutePath
     notMinified = minifiedContents.size >= notMinifiedName.size
   }
@@ -60,7 +60,7 @@ verifyMinified := {
 val verifyFlags = taskKey[Unit]("Verify that all flags were provided to the compiler")
 
 verifyFlags := {
-  val compiledFile = ((public in Assets).value / "" ** "*assets-main.min.js").get.head
+  val compiledFile = ((public in Assets).value / Closure.parentDir.value ** "*assets-main.min.js").get.head
   val contents = IO.read(compiledFile)
   if (!contents.contains("someFlag=!0"))
     sys.error(s"Expected 'someFlag=!0' but was: '$contents'")
