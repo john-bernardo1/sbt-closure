@@ -95,7 +95,7 @@ object SbtClosure extends AutoPlugin {
         case (mappingFile, mappingName) =>
           val include = compiled.filter(_._2 == mappingName).isEmpty
           if (!include)
-            streams.value.log.info(s"Closure compiler encountered a duplicate mapping for $mappingName and will " +
+            streams.value.log.warn(s"Closure compiler encountered a duplicate mapping for $mappingName and will " +
               "prefer the closure compiled version instead. If you want to avoid this, make sure you aren't " +
               "including minified and non-minified sibling assets in the pipeline.")
           include
