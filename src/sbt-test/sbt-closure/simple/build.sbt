@@ -12,11 +12,6 @@ scalaVersion := "2.10.4"
 
 lazy val root = (project in file(".")).enablePlugins(SbtWeb)
 
-// CoffeeScript should compile before anything in the asset pipeline
-CoffeeScriptKeys.sourceMap := false
-
-CoffeeScriptKeys.bare := true
-
 // Pipeline which compiles assets, this one wraps code in a closure
 val wrapPipelineTask = taskKey[Pipeline.Stage]("Wraps JS code in an anonymous function block")
 
@@ -60,16 +55,6 @@ verifyMinified := {
   }
   if (notMinified)
     sys.error(s"File was not minified properly: $notMinifiedName")
-}
-
-val verifyNoCoffee = taskKey[Unit]("Verify that there are no CoffeeScript source files")
-
-verifyNoCoffee := {
-  val coffeeFiles = ((public in Assets).value / "" ** "*.coffee").get
-  if (coffeeFiles.nonEmpty) {
-    val files = coffeeFiles.map { f: File => f.getPath }.mkString(",")
-    sys.error(s"Found some CoffeeScript source files in the public compiled directory: $files")
-  }
 }
 
 val verifyFlags = taskKey[Unit]("Verify that all flags were provided to the compiler")
