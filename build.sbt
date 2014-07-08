@@ -25,8 +25,8 @@ publishMavenStyle := true
 scriptedSettings
 
 scriptedLaunchOpts ++= Seq(
-  "-Xmx1024M",
-  "-XX:MaxPermSize=256M",
+  "-Xmx2048M",
+  "-XX:MaxPermSize=512M",
   s"-Dproject.version=${version.value}"
 )
 
