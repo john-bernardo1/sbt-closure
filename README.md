@@ -11,6 +11,11 @@ Add the plugin to your `project/plugins.sbt`:
 addSbtPlugin("net.ground5hark.sbt" % "sbt-closure" % "0.1.0")
 ```
 
+Add the [Sonatype releases] resolver:
+```scala
+resolvers += Resolver.sonatypeRepo("releases")
+```
+
 Enable the [sbt-web] plugin for your project:
 ```scala
 lazy val root = (project in file(".")).enablePlugins(SbtWeb)
@@ -47,3 +52,4 @@ This code is licensed under the [MIT License].
 [official documentation page]:https://developers.google.com/closure/compiler/docs/gettingstarted_app
 [Google’s Closure Compiler]:https://developers.google.com/closure/compiler/
 [MIT License]:http://opensource.org/licenses/MIT
+[Sonatype releases]:https://oss.sonatype.org/content/repositories/releases/

@@ -20,7 +20,7 @@ resolvers ++= Seq(
   Resolver.mavenLocal
 )
 
-publishMavenStyle := false
+publishMavenStyle := true
 
 scriptedSettings
 
@@ -29,3 +29,33 @@ scriptedLaunchOpts ++= Seq(
   "-XX:MaxPermSize=256M",
   s"-Dproject.version=${version.value}"
 )
+
+publishTo := {
+  val nexus = "https://oss.sonatype.org/"
+  Some(if (isSnapshot.value) {
+    "snapshots" at nexus + "content/repositories/snapshots"
+  } else {
+    "releases" at nexus + "service/local/staging/deploy/maven2"
+  })
+}
+
+pomExtra := (
+  <url>https://github.com/ground5hark/sbt-closure</url>
+  <licenses>
+    <license>
+      <name>MIT</name>
+      <url>http://opensource.org/licenses/MIT</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <scm>
+    <url>git@github.com:ground5hark/sbt-closure.git</url>
+    <connection>scm:git:git@github.com:ground5hark/sbt-closure.git</connection>
+  </scm>
+  <developers>
+    <developer>
+      <id>ground5hark</id>
+      <name>John Bernardo</name>
+      <url>https://github.com/ground5hark</url>
+    </developer>
+  </developers>)
