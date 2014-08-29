@@ -8,7 +8,7 @@ Plugin
 ======
 Add the plugin to your `project/plugins.sbt`:
 ```scala
-addSbtPlugin("net.ground5hark.sbt" % "sbt-closure" % "0.1.2")
+addSbtPlugin("net.ground5hark.sbt" % "sbt-closure" % "0.1.3")
 ```
 
 Add the [Sonatype releases] resolver:
@@ -44,7 +44,8 @@ Closure.flags := Seq("--formatting=PRETTY_PRINT", "--accept_const_keyword")
 
 This will produce assets with the specified `Closure.suffix` suffix value under the `Closure.parentDir` directory within
 the `target` folder. This will be `target/web/public/main` or `target/web/stage`. For a full list of closure compiler
-options, see the [official documentation page].
+options, see the [official documentation page]. You can also specify `includeFilter in closure` or
+`excludeFilter in closure` to select files on a custom criteria.
 
 License
 =======

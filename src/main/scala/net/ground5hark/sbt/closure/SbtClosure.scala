@@ -33,8 +33,6 @@ private class SbtClosureCommandLineRunner(args: Array[String]) extends CommandLi
 }
 
 object SbtClosure extends AutoPlugin {
-  final val OutputDir = "closure-compiler"
-
   override def requires = SbtWeb
 
   override def trigger = AllRequirements
@@ -51,6 +49,7 @@ object SbtClosure extends AutoPlugin {
     suffix := ".min.js",
     parentDir := "closure-compiler",
     includeFilter in closure := new UncompiledJsFileFilter(suffix.value),
+    excludeFilter in closure := HiddenFileFilter,
     closure := closureCompile.value
   )
 
@@ -72,7 +71,10 @@ object SbtClosure extends AutoPlugin {
   private def closureCompile: Def.Initialize[Task[Pipeline.Stage]] = Def.task {
     mappings: Seq[PathMapping] =>
       val targetDir = (public in Assets).value / parentDir.value
-      val compileMappings = mappings.view.filter(m => (includeFilter in closure).value.accept(m._1)).toMap
+      val compileMappings = mappings.view
+        .filter(m => (includeFilter in closure).value.accept(m._1))
+        .filterNot(m => (excludeFilter in closure).value.accept(m._1))
+        .toMap
 
       // Only do work on files which have been modified
       val runCompiler = FileFunction.cached(streams.value.cacheDirectory / parentDir.value, FilesInfo.hash) { files =>
@@ -80,7 +82,7 @@ object SbtClosure extends AutoPlugin {
           val outputFileSubPath = s"${util.withoutExt(compileMappings(f))}${suffix.value}"
           val outputFile = targetDir / outputFileSubPath
           IO.createDirectory(outputFile.getParentFile)
-          streams.value.log.info(s"Closure compiler executing on file: ${compileMappings(f)}")
+          streams.value.log.info(s"Closure compiler executing on file ${compileMappings(f)}")
           invokeCompiler(f, outputFile, flags.value)
           outputFile
         }

@@ -6,7 +6,7 @@ organization := "net.ground5hark.sbt"
 
 name := "sbt-closure-test"
 
-version := "0.1.2"
+version := "0.1.3"
 
 scalaVersion := "2.10.4"
 
@@ -51,7 +51,7 @@ verifyMinified := {
     val minifiedContents = IO.read(minFile)
     val unminifiedContents = IO.read(minFile.getParentFile / ".." / ".." / "js" / minFile.getName.replace(".min", ""))
     notMinifiedName = minFile.getAbsolutePath
-    notMinified = minifiedContents.size >= notMinifiedName.size
+    notMinified = minifiedContents.size >= unminifiedContents.size
   }
   if (notMinified)
     sys.error(s"File was not minified properly: $notMinifiedName")
