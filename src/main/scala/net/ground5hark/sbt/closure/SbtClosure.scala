@@ -55,7 +55,13 @@ object SbtClosure extends AutoPlugin {
 
   object util {
     def withoutExt(name: String): String = name.substring(0, name.lastIndexOf("."))
-    def withParent(f: File): String = f.getParentFile.getName + "/" + f.getName
+    def relativePath(file: File, baseDir: File): String = {
+      import java.nio.file.Paths
+
+      val basePath = Paths.get(baseDir.getCanonicalPath)
+      val outputFilePath = Paths.get(file.getCanonicalPath)
+      basePath.relativize(outputFilePath).toString
+    }
   }
 
   private def invokeCompiler(src: File, target: File, flags: Seq[String]): Unit = {
@@ -89,7 +95,7 @@ object SbtClosure extends AutoPlugin {
       }
 
       val compiled = runCompiler(compileMappings.keySet).map { outputFile =>
-        (outputFile, util.withParent(outputFile))
+        (outputFile, util.relativePath(outputFile, targetDir))
       }.toSeq
 
       compiled ++ mappings.filter {
