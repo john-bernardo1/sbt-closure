@@ -53,17 +53,6 @@ object SbtClosure extends AutoPlugin {
     closure := closureCompile.value
   )
 
-  object util {
-    def withoutExt(name: String): String = name.substring(0, name.lastIndexOf("."))
-    def relativePath(file: File, baseDir: File): String = {
-      import java.nio.file.Paths
-
-      val basePath = Paths.get(baseDir.getCanonicalPath)
-      val outputFilePath = Paths.get(file.getCanonicalPath)
-      basePath.relativize(outputFilePath).toString
-    }
-  }
-
   private def invokeCompiler(src: File, target: File, flags: Seq[String]): Unit = {
     val opts = Seq(s"--js=${src.getAbsolutePath}", s"--js_output_file=${target.getAbsolutePath}") ++
       flags.filterNot(s => s.trim.startsWith("--js=") || s.trim.startsWith("--js_output_file="))
@@ -85,7 +74,7 @@ object SbtClosure extends AutoPlugin {
       // Only do work on files which have been modified
       val runCompiler = FileFunction.cached(streams.value.cacheDirectory / parentDir.value, FilesInfo.hash) { files =>
         files.map { f =>
-          val outputFileSubPath = s"${util.withoutExt(compileMappings(f))}${suffix.value}"
+          val outputFileSubPath = IO.split(compileMappings(f))._1 + suffix.value
           val outputFile = targetDir / outputFileSubPath
           IO.createDirectory(outputFile.getParentFile)
           streams.value.log.info(s"Closure compiler executing on file ${compileMappings(f)}")
@@ -95,7 +84,10 @@ object SbtClosure extends AutoPlugin {
       }
 
       val compiled = runCompiler(compileMappings.keySet).map { outputFile =>
-        (outputFile, util.relativePath(outputFile, targetDir))
+        val relativePath = IO.relativize(targetDir, outputFile).getOrElse {
+          sys.error(s"Cannot find $outputFile path relative to $targetDir")
+        }
+        (outputFile, relativePath)
       }.toSeq
 
       compiled ++ mappings.filter {
