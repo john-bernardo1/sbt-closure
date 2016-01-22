@@ -8,7 +8,7 @@ version := "0.1.4"
 
 scalaVersion := "2.10.4"
 
-libraryDependencies += "com.google.javascript" % "closure-compiler" % "v20140625"
+libraryDependencies += "com.google.javascript" % "closure-compiler" % "v20151216"
 
 addSbtPlugin("com.typesafe.sbt" %% "sbt-web" % "1.0.2")
 
